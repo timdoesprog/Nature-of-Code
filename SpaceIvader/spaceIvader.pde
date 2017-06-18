@@ -21,6 +21,40 @@ class Obstacle {
     }
     return false;
   }
+
+  boolean isHit(ArrayList<Missile> missiles) {
+    for (int i = missiles.size() - 1; i >= 0; i--) {
+      Missile m = missiles.get(i);
+      if (m.location.x > location.x && m.location.x < location.x + size) {
+        if (m.location.y > location.y && m.location.y < location.y + size) {
+          ship.missiles.remove(i);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+}
+
+
+class Missile {
+  PVector location;
+  PVector velocity = new PVector(0, -3);
+  float size = 2;
+
+  Missile(PVector loc) {
+    location = loc;
+  }
+
+  void display() {
+    stroke(255);
+    fill(255);
+    ellipse(location.x, location.y, size, size);
+  }
+
+  void update() {
+    location.add(velocity);
+  }
 }
 
 
@@ -29,6 +63,7 @@ class Spaceship {
   float velocity = 3;
   float size = 8;
   boolean alive = true;
+  ArrayList<Missile> missiles = new ArrayList<Missile>();
 
   void display() {
     if (alive) {
@@ -36,6 +71,10 @@ class Spaceship {
       fill(219, 40, 20);
       triangle(location.x - size, location.y, location.x, location.y - size * 2,
         location.x + size, location.y);
+      for (Missile m : missiles) {
+        m.display();
+        m.update();
+      }
     }
   }
 
@@ -48,6 +87,7 @@ class Spaceship {
       location.add(dist);
       checkEdges();
     }
+    checkMissiles();
   }
 
   void checkEdges() {
@@ -65,6 +105,18 @@ class Spaceship {
     }
   }
 
+  void shoot() {
+    missiles.add(new Missile(new PVector(location.x, location.y - size * 2)));
+  }
+
+  void checkMissiles() {
+    for (int i = missiles.size() - 1; i >= 0; i--) {
+      Missile m = missiles.get(i);
+      if (m.location.y < -10) {
+        missiles.remove(i);
+      }
+    }
+  }
 }
 
 
@@ -86,13 +138,24 @@ void draw() {
   ship.display();
   ship.update();
   for (int i = 0; i < obstacles.length; i++) {
-    obstacles[i].display();
-    if (obstacles[i].collided(ship)) {
-      ship.alive = false;
+    if (obstacles[i]) {
+      obstacles[i].display();
+      if (obstacles[i].collided(ship)) {
+        ship.alive = false;
+      }
+      obstacles[i].update();
+      if (obstacles[i].location.y > height + 10) {
+        obstacles[i] = new Obstacle();
+      }
+      if (obstacles[i].isHit(ship.missiles)) {
+        obstacles[i] = null;
+      }
     }
-    obstacles[i].update();
-    if (obstacles[i].location.y > height + 10) {
+    else {
       obstacles[i] = new Obstacle();
     }
+  }
+  if (mousePressed && (mouseButton == LEFT)) {
+    ship.shoot();
   }
 }
