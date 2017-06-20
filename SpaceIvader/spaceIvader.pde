@@ -1,6 +1,6 @@
 class Obstacle {
   PVector location = new PVector(random(width), random(-500, -20));
-  PVector velocity = new PVector(0, random(1, 2));
+  PVector velocity = new PVector(0, random(1, 2) + counter);
   float size = random(10, 20);
 
   void display() {
@@ -14,7 +14,23 @@ class Obstacle {
   }
 
   boolean collided(Spaceship ship) {
+    // hit detection for the tip of the ship
     if (ship.location.x > location.x && ship.location.x < location.x + size) {
+      if (ship.location.y - ship.size * 2 > location.y - ship.size * 2 &&
+          ship.location.y - ship.size * 2 < location.y + size) {
+        return true;
+      }
+    }
+    // hit detection for the left point of the ship
+    if (ship.location.x - ship.size > location.x &&
+        ship.location.x - ship.size < location.x + size) {
+      if (ship.location.y > location.y && ship.location.y < location.y + size) {
+        return true;
+      }
+    }
+    // hit detection for the right point of the ship
+    if (ship.location.x + ship.size > location.x &&
+        ship.location.x + ship.size < location.x + size) {
       if (ship.location.y > location.y && ship.location.y < location.y + size) {
         return true;
       }
@@ -60,9 +76,10 @@ class Missile {
 
 class Spaceship {
   PVector location = new PVector(160, 530);
-  float velocity = 3;
+  float velocity = 4;
   float size = 8;
   boolean alive = true;
+  boolean reloaded = true;
   ArrayList<Missile> missiles = new ArrayList<Missile>();
 
   void display() {
@@ -122,6 +139,7 @@ class Spaceship {
 
 Spaceship ship;
 Obstacle[] obstacles;
+float counter = 0;
 
 
 void setup() {
@@ -155,7 +173,19 @@ void draw() {
       obstacles[i] = new Obstacle();
     }
   }
-  if (mousePressed && (mouseButton == LEFT)) {
+  if (mousePressed && (mouseButton == LEFT) && ship.reloaded) {
     ship.shoot();
+    ship.reloaded = false;
+  }
+  else if (!mousePressed) {
+    ship.reloaded = true;
+  }
+  if (ship.alive) {
+    counter += 0.0002;
+  }
+  else {
+    textSize(32);
+    fill(255);
+    text(round(counter * 1000), width/3, height/2);
   }
 }
