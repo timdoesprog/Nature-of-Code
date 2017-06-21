@@ -1,12 +1,56 @@
+class Particle {
+  float size;
+  PVector location;
+  PVector velocity = new PVector(random(-1, 1), random(0.1, 1));
+  float lifeTime = 2;
+  boolean finished = false;
+
+  Particle(float s, PVector loc) {
+    size = s;
+    location = loc;
+  }
+
+  void display() {
+    if (!finished) {
+      stroke(255);
+      fill(199);
+      rect(location.x, location.y, size, size);
+    }
+  }
+
+  void update() {
+    location.add(velocity);
+    lifeTime -= 0.1;
+    if (lifeTime < 0) {
+      finished = true;
+    }
+  }
+}
+
+
 class Obstacle {
   PVector location = new PVector(random(width), random(-500, -20));
   PVector velocity = new PVector(0, random(1, 2) + counter);
   float size = random(10, 20);
+  boolean isExploding = false;
+  boolean isExploded = false;
+  Particle[] particles = new Particle[20];
 
   void display() {
-    stroke(255);
-    fill(222);
-    rect(location.x, location.y, size, size);
+    if (isExploding) {
+      for (int i = 0; i < particles.length; i++) {
+        particles[i].display();
+        particles[i].update();
+        if (particles[i].finished) {
+          isExploded = true;
+        }
+      }
+    }
+    else {
+      stroke(255);
+      fill(222);
+      rect(location.x, location.y, size, size);
+    }
   }
 
   void update() {
@@ -14,6 +58,10 @@ class Obstacle {
   }
 
   boolean collided(Spaceship ship) {
+    // no collision when the obstacle is exploding
+    if (isExploding || isExploded) {
+      return false;
+    }
     // hit detection for the tip of the ship
     if (ship.location.x > location.x && ship.location.x < location.x + size) {
       if (ship.location.y - ship.size * 2 > location.y - ship.size * 2 &&
@@ -38,17 +86,28 @@ class Obstacle {
     return false;
   }
 
-  boolean isHit(ArrayList<Missile> missiles) {
-    for (int i = missiles.size() - 1; i >= 0; i--) {
-      Missile m = missiles.get(i);
+  boolean isHit(Spaceship ship) {
+    if (isExploding || isExploded) {
+      return false;
+    }
+    for (int i = ship.missiles.size() - 1; i >= 0; i--) {
+      Missile m = ship.missiles.get(i);
       if (m.location.x > location.x && m.location.x < location.x + size) {
         if (m.location.y > location.y && m.location.y < location.y + size) {
           ship.missiles.remove(i);
+          spawnParticles();
           return true;
         }
       }
     }
     return false;
+  }
+
+  void spawnParticles() {
+    PVector middleOfBox = new PVector(location.x + size/2, location.y + size/2);
+    for (int i = 0; i < particles.length; i++) {
+      particles[i] = new Particle(size/4, middleOfBox);
+    }
   }
 }
 
@@ -123,7 +182,9 @@ class Spaceship {
   }
 
   void shoot() {
-    missiles.add(new Missile(new PVector(location.x, location.y - size * 2)));
+    if (alive) {
+      missiles.add(new Missile(new PVector(location.x, location.y - size * 2)));
+    }
   }
 
   void checkMissiles() {
@@ -165,7 +226,10 @@ void draw() {
       if (obstacles[i].location.y > height + 10) {
         obstacles[i] = new Obstacle();
       }
-      if (obstacles[i].isHit(ship.missiles)) {
+      if (obstacles[i].isHit(ship)) {
+        obstacles[i].isExploding = true;
+      }
+      if (obstacles[i].isExploded) {
         obstacles[i] = null;
       }
     }
