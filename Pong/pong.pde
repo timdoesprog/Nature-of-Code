@@ -1,6 +1,6 @@
 class Ball {
   PVector location = new PVector(360, 240);
-  PVector velocity = new PVector(-1, 1);
+  PVector velocity = new PVector(2, 2);
   float radius = 5;
 
   void display() {
@@ -23,15 +23,16 @@ class Ball {
     }
   }
 
-  boolean hit(Player player) {
-    if (location.x <= 15) {
+  boolean hitPlayer(Player player) {
+    if (location.x < 15) {
       if (location.y > player.location.y && location.y < player.location.y + player.length) {
+        player.colorCounter = 30;
         return true;
       }
     }
   }
 
-  boolean hit(Opponent o) {
+  boolean hitComputer(Opponent o) {
     if (location.x > width - 15) {
       if (location.y > o.location.y && location.y < o.location.y + o.length) {
         return true;
@@ -87,16 +88,21 @@ class Player {
   float velocity = 2;
   float length = 75;
   float thickness = 5;
-  Ball ball;
+  float colorCounter = 0;
 
-  Player(PVector loc, Ball b) {
+  Player(PVector loc) {
     location = loc;
-    ball = b;
   }
 
   void display() {
     stroke(200, 255, 0);
-    fill(200,255,0);
+    if (colorCounter > 0) {
+      fill(255, 255, 255);
+      colorCounter--;
+    }
+    else {
+      fill(200,255,0);
+    }
     rect(location.x, location.y, thickness, length, thickness, length);
   }
 
@@ -131,7 +137,7 @@ Ball ball;
 void setup() {
   size(720, 480);
   ball = new Ball();
-  player = new Player(new PVector(5, height/2 - 37), ball);
+  player = new Player(new PVector(5, height/2 - 37));
   computer = new Opponent(new PVector(width - 10, height/2 - 37), ball);
 }
 
@@ -146,12 +152,12 @@ void draw() {
   ball.display();
   ball.update();
 
-  if (ball.hit(player)) {
-    ball.velocity.mult(-1);
+  if (ball.hitPlayer(player)) {
+    ball.velocity.x *= -1;
   }
 
-  if (ball.hit(computer)) {
-    ball.velocity.mult(-1);
+  if (ball.hitComputer(computer)) {
+    ball.velocity.x *= -1;
   }
 }
 
