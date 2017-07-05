@@ -7,20 +7,23 @@ class Drop {
   float yspeed = map(z, 0, 20, 2, 10);
   // closer to the screen == longer raindrop
   float length = map(z, 0, 20, 5, 10);
+  boolean visible = true;
 
   void fall() {
     y = y + yspeed;
-
     if (y > height) {
+      visible = true;
       y = random(-200, -100);
     }
   }
 
   void show() {
-    float thick = map(z, 0, 20, .5, 1.5);
-    strokeWeight(thick);
-    stroke(20, 20, 70);
-    line(x, y, x, y + length);
+    if (visible) {
+      float thick = map(z, 0, 20, .5, 1.5);
+      strokeWeight(thick);
+      stroke(20, 20, 70);
+      line(x, y, x, y + length);
+    }
   }
 }
 
@@ -37,6 +40,12 @@ void setup() {
 void draw() {
   background(200, 200, 200);
   for (int i = 0; i < drops.length; i++) {
+    PVector mousePos = new PVector(mouseX, mouseY);
+    PVector dropLocation = new PVector(drops[i].x, drops[i].y);
+    PVector distance = PVector.sub(dropLocation, mousePos);
+    if (distance.mag() < 50) {
+      drops[i].visible = false;
+    }
     drops[i].fall();
     drops[i].show();
   }
