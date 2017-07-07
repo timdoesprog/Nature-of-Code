@@ -18,6 +18,7 @@ class Mover {
 
   void update() {
     velocity.add(acceleration);
+    velocity.limit(5);
     location.add(velocity);
 
     acceleration.mult(0);
@@ -42,7 +43,6 @@ void draw() {
   PVector mouse = new PVector(mouseX, mouseY);
   PVector direction = PVector.sub(mouse, m.location);
   direction.normalize();
-  direction.mult(0.3);
   m.applyForce(direction);
   m.display();
   m.update();
