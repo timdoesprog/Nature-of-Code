@@ -1,5 +1,5 @@
 float angle = 0;
-float aVeloctiy = 0;
+float aVelocity = 0;
 float aAcceleration = 0.0001;
 
 void setup() {
@@ -17,6 +17,6 @@ void draw() {
   ellipse(50,0,8,8);
   ellipse(-50,0,8,8);
 
-  aVeloctiy += aAcceleration;
-  angle += aVeloctiy;
+  aVelocity += aAcceleration;
+  angle += aVelocity;
 }
