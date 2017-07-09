@@ -1,4 +1,6 @@
+// distance from the middle
 float r = 0;
+// angle
 float theta = 0;
 
 void setup() {
