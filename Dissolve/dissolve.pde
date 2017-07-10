@@ -22,6 +22,7 @@ class Particle {
 int length = 50;
 int xOffset = 200;
 int yOffset = 200;
+int chance = 100;
 PVector[][] cube = new PVector[length][length + 1];
 ArrayList<Particle> particles = new ArrayList<Particle>();
 
@@ -56,7 +57,7 @@ void draw() {
   for (int i = 0; i < length; i++) {
     for (int j = 0; j < length; j++) {
       if (cube[i][j] && (!cube[i][j + 1])) {
-        int choice = int(random(0, 20));
+        int choice = int(random(0, chance));
         if (choice == 1) {
           Particle p = new Particle(cube[i][j]);
           cube[i][j] = null;
@@ -75,5 +76,9 @@ void draw() {
         p = null;
       }
     }
+  }
+  // increase the chance to create particles
+  if (chance > 10) {
+    chance -= 0.1;
   }
 }
