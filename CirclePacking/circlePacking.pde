@@ -2,6 +2,9 @@ class Circle {
   PVector location;
   float radius;
   boolean growing = true;
+  int red = int(random(0, 255));
+  int green = int(random(0, 255));
+  int blue = int(random(0, 255));
 
   Circle(float x, float y) {
     location = new PVector(x, y);
@@ -20,7 +23,7 @@ class Circle {
   }
 
   void display() {
-    stroke(255);
+    stroke(red, green, blue);
     strokeWeight(2);
     noFill();
     ellipse(location.x, location.y, radius * 2, radius * 2);
@@ -29,6 +32,7 @@ class Circle {
 
 
 ArrayList<Circle> circles;
+boolean finished = false;
 
 
 void setup() {
@@ -38,39 +42,52 @@ void setup() {
 }
 
 void draw() {
-  background(51);
-  createCircle();
-  for (Circle c : circles) {
-    if (c.growing) {
-      if (c.hit()) {
-        c.growing = false;
-      }
-      for (Circles c2 : circles) {
-        if (c2 != c) {
-          PVector distance = PVector.sub(c.location, c2.location);
-          if (distance.mag() - 2 < c.radius + c2.radius) {
-            c.growing = false;
-            c2.growing = false;
-            break;
-          }
+  if (!finished) {
+    background(51);
+    int circleCounter = 0;
+    for (int i = 0; i < 30; i++) {
+      if (circleCounter < 5) {
+        if (createCircle()) {
+        circleCounter++;
         }
       }
     }
-    c.display();
-    c.grow();
+    if (circleCounter == 0) {
+      finished = true;
+    }
+    for (Circle c : circles) {
+      if (c.growing) {
+        if (c.hit()) {
+          c.growing = false;
+        }
+        for (Circles c2 : circles) {
+          if (c2 != c) {
+            PVector distance = PVector.sub(c.location, c2.location);
+            if (distance.mag() - 2 < c.radius + c2.radius) {
+              c.growing = false;
+              c2.growing = false;
+              break;
+            }
+          }
+        }
+      }
+      c.display();
+      c.grow();
+    }
   }
 }
 
-void createCircle() {
+boolean createCircle() {
   float x = random(width);
   float y = random(height);
 
   for (Cirlce c : circles) {
     PVector distance = PVector.sub(new PVector(x, y), c.location);
     if (distance.mag() < c.radius) {
-      return;
+      return false;
     }
   }
 
   circles.add(new Circle(x, y));
+  return true;
 }
