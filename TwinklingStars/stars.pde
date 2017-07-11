@@ -3,9 +3,10 @@ class Star {
   PVector loc = new PVector(random(width), random(height));
   float base = random(1, 3);
   float size = random(2, 8);
-  int brightness = random(0, 255);
-  boolean brightening = true;
-  float changeRate = random(2, 8);
+  int brightness;
+  // boolean brightening = true;
+  // float changeRate = random(2, 8);
+  int period = int(random(75, 150));
 
   void display() {
     stroke(brightness);
@@ -21,18 +22,21 @@ class Star {
   }
 
   void update() {
-    if (brightening) {
-      brightness += changeRate;
-      if (brightness >= 255 - changeRate) {
-        brightening = false;
-      }
-    }
-    else {
-      brightness -= changeRate;
-      if (brightness <= 0 + changeRate) {
-        brightening = true;
-      }
-    }
+    // if (brightening) {
+    //   brightness += changeRate;
+    //   if (brightness >= 255 - changeRate) {
+    //     brightening = false;
+    //   }
+    // }
+    // else {
+    //   brightness -= changeRate;
+    //   if (brightness <= 0 + changeRate) {
+    //     brightening = true;
+    //   }
+    // }
+
+    // new brightness change with sine
+    brightness = int(abs(sin(TWO_PI * frameCount/period)) * 255);
   }
 }
 
@@ -41,7 +45,7 @@ Star[] stars;
 
 void setup() {
   size(480, 480);
-  stars = new Star[30];
+  stars = new Star[50];
   for (int i = 0; i < stars.length; i++) {
     stars[i] = new Star();
   }
@@ -50,7 +54,7 @@ void setup() {
 void draw() {
   background(0);
   for (int i = 0; i < stars.length; i++) {
-    stars[i].display();
     stars[i].update();
+    stars[i].display();
   }
 }
